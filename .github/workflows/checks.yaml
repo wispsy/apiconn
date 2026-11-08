@@ -26,4 +26,4 @@ jobs:
           version: '0.12.19'
           python-version: '3.14'
       - name: Qualify against selected requ source pending its first release
-        run: uv run --no-project --with . --with "requ @ git+https://github.com/wispsy/requ.git@5656ce4ff2537f89e27ae4b0c474e670cd39ed3f" python -W error::ResourceWarning -m unittest discover -s tests -v
+        run: uv run --no-project --with . --with "requ @ git+https://github.com/wispsy/requ.git@38395d37c184d6ead5fb38c45c91a4b58e5c94c1" python -W error::ResourceWarning -m unittest discover -s tests -v
