@@ -59,9 +59,10 @@ class Handler(BaseHTTPRequestHandler):
             value = {'items': [page] if page < 3 else []}
         elif parts.path == '/endless':
             value = {'items': [1]}
-        elif parts.path in {'/cursor', '/cycle'}:
+        elif parts.path in {'/cursor', '/cycle', '/url-cursor'}:
             current = query.get('cursor', [None])[0]
-            value = {'items': [current], 'next_cursor': 'two' if current is None or parts.path == '/cycle' else None}
+            next_cursor = 'https://unselected.invalid/private' if parts.path == '/url-cursor' else 'two'
+            value = {'items': [current], 'next_cursor': next_cursor if current is None or parts.path == '/cycle' else None}
         elif parts.path == '/bad-page':
             value = {'items': 'bad', 'next_cursor': None}
         elif parts.path == '/missing-cursor':
@@ -129,10 +130,13 @@ class GraphQLPaginationTests(unittest.TestCase):
 
     def test_page_and_cursor_boundaries(self):
         with API(self.base) as api:
-            for name in ('pages', 'cursor', 'cycle', 'endless', 'bad-page', 'missing-cursor'):
+            for name in ('pages', 'cursor', 'cycle', 'endless', 'bad-page', 'missing-cursor', 'url-cursor'):
                 api.operation(name, method='GET', path=name)
             self.assertEqual(list(api.paginate('pages', pagination=PagePagination(max_pages=3))), [1, 2])
             self.assertEqual(list(api.paginate('cursor', pagination=CursorPagination(max_pages=2))), [None, 'two'])
+            before = len(self.service.server.calls)
+            self.assertEqual(list(api.paginate('url-cursor', pagination=CursorPagination())), [None, 'https://unselected.invalid/private'])
+            self.assertTrue(all(call[1] == '/url-cursor' for call in self.service.server.calls[before:]))
             before = len(self.service.server.calls)
             with self.assertRaises(PaginationLimitError):
                 list(api.paginate('endless', pagination=PagePagination(max_pages=2)))
