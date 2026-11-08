@@ -1,17 +1,32 @@
 [project]
 name = "apiconn"
 version = "0.1.0"
-description = "Add your description here"
+description = "Operation-first REST and GraphQL API connections over requ"
 readme = "README.md"
 authors = [
     { name = "ellainng", email = "299958882+ellainng@users.noreply.github.com" }
 ]
 requires-python = ">=3.14"
-dependencies = []
+dependencies = ["requ>=0.1.0,<0.2.0"]
+license = "MIT"
+license-files = ["LICENSE"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+]
 
-[project.scripts]
-apiconn = "apiconn:main"
+[project.urls]
+Homepage = "https://github.com/wispsy/apiconn"
+Repository = "https://github.com/wispsy/apiconn"
+Issues = "https://github.com/wispsy/apiconn/issues"
 
 [build-system]
 requires = ["uv_build>=0.13.6,<0.14.0"]
 build-backend = "uv_build"
+
+[tool.uv.build-backend]
+source-include = ["tests/**", "docs/**", "examples/**", "scripts/**", "LICENSE", "README.md", "CHANGELOG.md"]
