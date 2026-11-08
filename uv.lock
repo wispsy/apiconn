@@ -1,0 +1,23 @@
+version = 1
+revision = 5
+requires-python = ">=3.14"
+
+[[package]]
+name = "apiconn"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "requ" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "requ", specifier = ">=0.1.0,<0.2.0" }]
+
+[[package]]
+name = "requ"
+version = "0.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/29/7f/8f4c66deec49c301a3747bddf7836d98411134fe277fbca8dc846ee47eb6/requ-0.1.0.tar.gz", hash = "sha256:8d213f19be1f7391a4858a94678eaa78a5ccec4a7ca068e3ece0e52f6b3d36a7", size = 20554, upload-time = "2026-11-08T22:31:48.291Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ae/ff/ce12febb0c424342a6378f1b9e3601ff70a526e23c9929c130dbd3f37128/requ-0.1.0-py3-none-any.whl", hash = "sha256:dc348f6f3f50b74fb020ee2804b3e668f0ef488bf1673b468c5110ab232d3ebe", size = 9797, upload-time = "2026-11-08T22:31:47.175Z" },
+]
