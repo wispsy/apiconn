@@ -1,38 +1,57 @@
-name: Release
-
+name: Release package
 on:
-  push:
-    tags: ['v*']
-
+  release:
+    types: [published]
 permissions:
   contents: read
-
 concurrency:
-  group: apiconn-pypi-release
+  group: pypi-${{ github.event.release.tag_name }}
   cancel-in-progress: false
-
 jobs:
-  checks:
-    name: Release checks
-    uses: ./.github/workflows/checks.yaml
-    with:
-      release-tag: ${{ github.ref_name }}
-      upload-distributions: true
-
-  publish:
-    name: Publish to PyPI
-    needs: checks
+  build:
+    name: Build and qualify release artifacts
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
+    env:
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          fetch-depth: 0
+          persist-credentials: false
+      - run: git merge-base --is-ancestor HEAD origin/main
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9
+        with:
+          version: '0.13.9'
+          python-version: '3.14'
+      - run: uv run --no-project --python 3.14 python scripts/check_distribution.py --tag "$RELEASE_TAG" --output-dir dist
+      - name: Validate selected release identity and payload
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: uv run --no-project python scripts/check_release.py dist --tag "$RELEASE_TAG"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: release-distributions
+          path: dist/*
+          if-no-files-found: error
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: release-receipt
+          path: release-artifacts.json
+          if-no-files-found: error
+  publish:
+    name: Publish qualified release
+    needs: build
+    runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/project/apiconn/
+      url: https://pypi.org/p/apiconn
     permissions:
       id-token: write
     steps:
-      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
         with:
           name: release-distributions
           path: dist
-      - name: Publish verified distributions
-        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # release/v1
+      - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086
