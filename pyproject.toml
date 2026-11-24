@@ -1,13 +1,13 @@
 [project]
 name = "apiconn"
-version = "0.1.0"
+version = "0.1.1"
 description = "Operation-first REST and GraphQL API connections over requ"
 readme = "README.md"
 authors = [
     { name = "ellainng", email = "299958882+ellainng@users.noreply.github.com" }
 ]
 requires-python = ">=3.14"
-dependencies = ["requ>=0.1.0,<0.2.0"]
+dependencies = ["requ>=0.2.0,<0.3.0"]
 license = "MIT"
 license-files = ["LICENSE"]
 classifiers = [

@@ -27,7 +27,7 @@ TEST_DATA_FILES = set()
 EXAMPLE_FILES = {'local_service.py'}
 DIAGNOSTIC_FILES = set()
 SOURCE_FILES = ({'README.md', 'LICENSE', 'CHANGELOG.md', 'docs/api.md',
-                 'scripts/check_distribution.py'}
+                 'scripts/check_distribution.py', 'scripts/check_release.py'}
                 | {f'src/{name}' for name in PACKAGE_FILES}
                 | {f'tests/{name}' for name in TEST_FILES}
                 | {f'examples/{name}' for name in EXAMPLE_FILES})
@@ -35,7 +35,7 @@ SOURCE_FILES = ({'README.md', 'LICENSE', 'CHANGELOG.md', 'docs/api.md',
 
 def valid_requirements(requirements):
     return len(requirements or []) == 1 and requirements[0].replace(' ', '') in {
-        'requ>=0.1.0,<0.2.0', 'requ<0.2.0,>=0.1.0'}
+        'requ>=0.2.0,<0.3.0', 'requ<0.3.0,>=0.2.0'}
 
 
 def require(condition: bool, message: str) -> None:
@@ -114,7 +114,7 @@ def verify_install(artifact: Path, sandbox: Path, root: Path, version: str) -> N
     python = environment / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')
     # Resolve the released transport from the public index, never a sibling checkout.
     run(['uv', 'pip', 'install', '--python', str(python), '--index-url',
-         'https://pypi.org/simple', 'requ==0.1.0'], cwd=sandbox)
+         'https://pypi.org/simple', 'requ==0.2.0'], cwd=sandbox)
     # Source installation may resolve only the already-declared build backend.
     args = ['uv', 'pip', 'install', '--python', str(python), '--no-deps']
     if artifact.suffix == '.whl':
@@ -133,7 +133,7 @@ def verify_install(artifact: Path, sandbox: Path, root: Path, version: str) -> N
             'package imported from outside its isolated environment')
     require(installed['version'] == installed['metadata'] == version, 'installed version differs')
     require(valid_requirements(installed['requirements']), 'installed runtime requirements differ')
-    require(installed['transport_version'] == '0.1.0' and installed['transport_direct'] is None,
+    require(installed['transport_version'] == '0.2.0' and installed['transport_direct'] is None,
             'transport must be the released registry distribution')
     require(Path(installed['transport_file']).resolve().is_relative_to(environment.resolve()),
             'transport imported outside its isolated environment')
@@ -169,7 +169,7 @@ def main() -> None:
     version = config['project']['version']
     require(not args.tag or args.tag == f'v{version}',
             'release tag must match the package version')
-    require(config['project']['dependencies'] == ['requ>=0.1.0,<0.2.0'], 'unexpected runtime dependencies')
+    require(config['project']['dependencies'] == ['requ>=0.2.0,<0.3.0'], 'unexpected runtime dependencies')
     output = args.output_dir.resolve()
     output.mkdir(parents=True, exist_ok=True)
     wheel = output / f'apiconn-{version}-py3-none-any.whl'
